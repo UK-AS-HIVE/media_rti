@@ -1,0 +1,56 @@
+<?php
+
+/**
+ *  Implements hook_field_formatter_info().
+ */
+function media_rti_field_formatter_info() {
+  return array(
+    'media_rti' => array(
+      'label' => t('Reflectance Transformation Imaging viewer'),
+      'field types' => array('file', 'image'),
+      'settings' => array()
+    ),
+  );
+}
+
+/**
+ *  Implements hook_field_formatter_view().
+ */
+function media_rti_field_formatter_view($entity_type, $entity, $field, $instance, $langcode, $items, $display) {
+  $settings = $display['settings'];
+  $element = array();
+  $element[0] = array(
+    '#theme' => 'rti_viewer',
+    'files' => $items,
+  );
+  return $element;
+}
+
+/**
+ *  Implements hook_theme().
+ */
+function media_rti_theme($existing, $type, $theme, $path) {
+  return array(
+    'rti_viewer' => array(
+      'function' => 'theme_media_rti_formatter_rti_viewer',
+      'render element' => 'element',
+    ),
+  );
+}
+
+/**
+ *  Theme callback
+ */
+function theme_media_rti_formatter_rti_viewer($element) {
+  dpm($element);
+
+  drupal_add_library('system', 'ui.button');
+
+  drupal_add_js(drupal_get_path('module', 'media_rti') . '/js/spidergl/spidergl_min.js');
+  drupal_add_js(drupal_get_path('module', 'media_rti') . '/js/spidergl/multires.js');
+
+  drupal_add_js('jQuery(document).ready(function() { createRtiViewer("rti-viewer-container", "/sites/default/files/rti/1224", 900, 600); });', 'inline');
+
+  return '<div id="rti-viewer-container"/>';
+}
+
