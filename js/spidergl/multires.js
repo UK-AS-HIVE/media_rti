@@ -44,7 +44,7 @@ function createRtiViewer(e, t, n, r) {
     a.width = n;
     a.height = r;
     o.append(a);
-    var f = document.createElement("a");
+    /*var f = document.createElement("a");
     f.href = "http://vcg.isti.cnr.it";
     f.target = "_blank";
     var l = document.createElement("div");
@@ -55,7 +55,7 @@ function createRtiViewer(e, t, n, r) {
     f.style.bottom = "0px";
     f.style.left = "0px";
     f.style.cssFloat = "left";
-    o.append(f);
+    o.append(f);*/
     var c = document.createElement("div");
     c.setAttribute("class", "toolbar");
     c.style.position = "absolute";
@@ -932,7 +932,7 @@ MultiResRenderer.prototype = {
         var e = document.createElement("canvas");
         e.height = 50;
         e.width = 80;
-        var t = e.getContext("2d");
+        /*var t = e.getContext("2d");
         t.save();
         t.beginPath();
         t.moveTo(0, 0);
@@ -1065,7 +1065,7 @@ MultiResRenderer.prototype = {
         t.restore();
         t.restore();
         t.restore();
-        t.restore();
+        t.restore();*/
         var n = new Image;
         var r = e.toDataURL("image/png");
         n.src = r;
