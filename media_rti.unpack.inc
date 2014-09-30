@@ -118,6 +118,8 @@ function media_rti_unpack_rti_file($fid) {
     }
   }
 
+  fclose($f);
+
   print_r("writing to jpegs\n");
 
   // Squarify at a power of 2
@@ -126,6 +128,7 @@ function media_rti_unpack_rti_file($fid) {
   $square_image = imagecreatetruecolor(258, 258);
 
   $firstId = 0;
+  $info['tree'] = array();
   media_rti_generate_tree(&$square_image, &$imagebuffer, $info, $firstId, -1, 0, 0, 1);
 
   /*for ($t = 0; $t < $basis_terms; ++$t) {
@@ -144,12 +147,33 @@ function media_rti_unpack_rti_file($fid) {
   }
   imagedestroy($square_image);
 
+
+  // Write info.xml
+  $infoFile = fopen('/var/www/sites/default/files/rti/1224/info.xml', 'w');
+  fwrite($infoFile, "<!DOCTYPE Doc>\n<MultiRes>\n");
+  switch($info['RTI_type']) {
+    case 3:
+      fwrite($infoFile, "<Content type=\"HSH_RTI\">\n");
+  }
+  fwrite($infoFile, '<Size width="' . $info['image_width'] . '" height="' . $info['image_height'] . '" coefficients="' . $info['basis_terms'] . "\"/>\n");
+  fwrite($infoFile, '<Scale>' . implode(' ', $info['bias_values']) . "</Scale>\n");
+  fwrite($infoFile, '<Bias>' .implode(' ', $info['scale_values']) . "</Bias>\n");
+  fwrite($infoFile, "</Content>\n");
+  fwrite($infoFile, "<Tree>" . count($info['tree']) . " 0\n");
+  fwrite($infoFile, "256\n");
+  fwrite($infoFile, $info['square_length'] . ' ' . $info['square_length'] . " 255\n0 0 0\n");
+  for ($i = 0; $i<count($info['tree']); ++$i) {
+    fwrite($infoFile, implode(' ', array_merge(array($i+1), array($info['tree'][$i]['parent']), $info['tree'][$i]['children'], array(256,1, $info['tree'][$i]['x1'], 1-$info['tree'][$i]['y2'], 0, $info['tree'][$i]['x2'], 1-$info['tree'][$i]['y1'], 1))) . "\n");
+  }
+  fwrite($infoFile, "</Tree>\n</MultiRes>");
+
+  fclose($infoFile);
 }
 
 function media_rti_generate_tree(&$square_image, &$imagebuffer, &$info, &$id, $parentIndex, $x, $y, $s) {
 
   if ($s * $info['square_length'] < 256)
-    return;
+    return 0;
 
   $myId = ++$id;
 
@@ -174,12 +198,21 @@ function media_rti_generate_tree(&$square_image, &$imagebuffer, &$info, &$id, $p
     imagejpeg($square_image, '/var/www/sites/default/files/rti/1224/' . $myId . '_' . ($t+1) . '.jpg', 98);
   }
 
-  media_rti_generate_tree($square_image, $imagebuffer, $info, $id, $myId, $x, $y+$hs, $hs);
-  media_rti_generate_tree($square_image, $imagebuffer, $info, $id, $myId, $x+$hs, $y+$hs, $hs);
-  media_rti_generate_tree($square_image, $imagebuffer, $info, $id, $myId, $x, $y, $hs);
-  media_rti_generate_tree($square_image, $imagebuffer, $info, $id, $myId, $x+$hs, $y, $hs);
+  $info['tree'][$myId-1] = array(
+    'parent' => $parentIndex,
+    'children' => array_fill(0, 4, -1),
+    'x1' => $x,
+    'y1' => $y,
+    'x2' => $x+$s,
+    'y2' => $y+$s,
+  );
 
+  $info['tree'][$myId-1]['children'][0] = media_rti_generate_tree($square_image, $imagebuffer, $info, $id, $myId-1, $x, $y+$hs, $hs) - 1;
+  $info['tree'][$myId-1]['children'][1] = media_rti_generate_tree($square_image, $imagebuffer, $info, $id, $myId-1, $x+$hs, $y+$hs, $hs) - 1;
+  $info['tree'][$myId-1]['children'][2] = media_rti_generate_tree($square_image, $imagebuffer, $info, $id, $myId-1, $x, $y, $hs) - 1;
+  $info['tree'][$myId-1]['children'][3] = media_rti_generate_tree($square_image, $imagebuffer, $info, $id, $myId-1, $x+$hs, $y, $hs) - 1;
 
+  return $myId;
 }
 
 if (function_exists(drush_print)) {
