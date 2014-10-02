@@ -72,6 +72,9 @@ uniform float gmin6;
 uniform float gmin7;
 uniform float gmin8;
 
+uniform float phi;
+uniform float theta;
+
 uniform float leftTex;
 uniform float rightTex;
 uniform float bottomTex;
@@ -129,5 +132,20 @@ void main(void)
 		rgbCoeff = rgbCoeff * gmin8 + gmax8;
 		color += (rgbCoeff * lweight8);
 	}
+
+	// Specular
+	float lx = cos(phi) * sin(theta);
+	float ly = sin(phi) * sin(theta);
+	float lz = cos(theta);
+
+	float nx = 2.0*texture2D(coeff1, v_texcoord).x - 1.0;
+	float ny = 2.0*texture2D(coeff3, v_texcoord).y - 1.0;
+	float nz = sqrt(1.0 - nx*nx - ny*ny);
+
+	vec3 N = vec3(nx, ny, nz);
+	vec3 H = 0.5*(vec3(lx,ly,lz)+N);
+	float spec = pow(dot(N, H), 150.0);
+	color += spec;
+
 	gl_FragColor = vec4(color, 1.0);
 }

@@ -795,7 +795,9 @@ MultiResRenderer.prototype = {
             case 1:
                 var t = Math.atan2(e[1], e[0]);
                 if (t < 0) t = 2 * Math.PI + t;
+                this.phi = t;
                 var n = Math.min(Math.acos(e[2]), Math.PI / 2 - .15);
+                this.theta = n;
                 var r = Math.cos(t);
                 var i = Math.cos(n);
                 var s = i * i;
@@ -1198,7 +1200,10 @@ MultiResRenderer.prototype = {
             leftTex: this.leftTex,
             rightTex: this.rightTex,
             bottomTex: this.bottomTex,
-            topTex: this.topTex
+            topTex: this.topTex,
+
+            theta: this.theta,
+            phi: this.phi
         };
         if (this.enumType[this.type] != 4) {
             for (var i = 0; i < this.ordlen; i++) {
