@@ -3,6 +3,11 @@
 function media_rti_unpack_rti_file($fid) {
   $file = drupal_realpath(file_load($fid)->uri);
 
+  // Make sure output path exists
+  if (!is_dir('/var/www/sites/default/files/rti/' . $fid)) {
+    mkdir('/var/www/sites/default/files/rti/' . $fid, 0775, true);
+  }
+
   // Open in text mode for reading the header info
   $f = fopen($file, 'r');
 
@@ -128,19 +133,9 @@ function media_rti_unpack_rti_file($fid) {
   $square_image = imagecreatetruecolor(258, 258);
 
   $firstId = 0;
+  $info['fid'] = $fid;
   $info['tree'] = array();
   media_rti_generate_tree(&$square_image, &$imagebuffer, $info, $firstId, -1, 0, 0, 1);
-
-  /*for ($t = 0; $t < $basis_terms; ++$t) {
-    imagecopyresampled($square_image, $imagebuffer[$t],
-      258*($square_length - $image_width)/($square_length)/2, 
-      258*($square_length - $image_height)/($square_length)/2,
-      0, 0,
-      258*($image_width/$square_length),
-      258*($image_height/$square_length),
-      $image_width, $image_height);
-    imagejpeg($square_image, '/var/www/sites/default/files/rti/1224/1_' . ($t+1) . '.jpg', 90);
-  }*/
 
   for ($t = 0; $t < $info['basis_terms']; ++$t) {
     imagedestroy($imagebuffer[$t]);
@@ -149,7 +144,7 @@ function media_rti_unpack_rti_file($fid) {
 
 
   // Write info.xml
-  $infoFile = fopen('/var/www/sites/default/files/rti/1224/info.xml', 'w');
+  $infoFile = fopen('/var/www/sites/default/files/rti/' . $fid . '/info.xml', 'w');
   fwrite($infoFile, "<!DOCTYPE Doc>\n<MultiRes>\n");
   switch($info['RTI_type']) {
     case 3:
@@ -195,7 +190,7 @@ function media_rti_generate_tree(&$square_image, &$imagebuffer, &$info, &$id, $p
       $srcX, $srcY,
       258, 258,
       $w, $w);
-    imagejpeg($square_image, '/var/www/sites/default/files/rti/1224/' . $myId . '_' . ($t+1) . '.jpg', 98);
+    imagejpeg($square_image, '/var/www/sites/default/files/rti/' . $info['fid'] . '/' . $myId . '_' . ($t+1) . '.jpg', 98);
   }
 
   $info['tree'][$myId-1] = array(
