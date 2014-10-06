@@ -64,7 +64,7 @@ function createRtiViewer(e, t, n, r) {
     c.style.cssFloat = "left";
     c.style.width = "40px";
     c.style.height = "200px";
-    c.innerHTML = '<button class = "toolbarButton zoomIn"></button><button class = "toolbarButton zoomOut"></button><button class = "toolbarButton light"></button><button class = "toolbarButton help"></button>';
+    c.innerHTML = '<button class = "toolbarButton zoomIn"></button><button class = "toolbarButton zoomOut"></button><button class = "toolbarButton light"></button><button class = "toolbarButton help"></button><div class="specularSliders"><div class="specularBlendSlider"></div><div class="specularExponentSlider"></div></div>';
     o.append(c);
     var h = document.createElement("div");
     h.id = e + "_guide";
@@ -128,6 +128,24 @@ function createRtiViewer(e, t, n, r) {
         text: false
     }).click(function() {
         $("#" + e + "_guide").show()
+    });
+    $("#" + e + "_div .specularBlendSlider").slider({
+       orientation: 'horizontal',
+       min: 0,
+       max: 1000,
+       value: 500,
+       slide: function(e, o) {
+         d.renderer.specularBlend = o.value/1000.0;
+       }
+    });
+    $("#" + e + "_div .specularExponentSlider").slider({
+       orientation: 'horizontal',
+       min: 10,
+       max: 500,
+       value: 250,
+       slide: function(e, o) {
+         d.renderer.specularExponent = o.value;
+       }
     });
     $("#" + e + "_guide").click(function() {
         $("#" + e + "_guide").hide()
@@ -882,6 +900,8 @@ MultiResRenderer.prototype = {
         this.renderData = true;
         this.renderBoxes = false;
         this.lightPos = [0, 0, 1];
+        this.specularBlend = 0.5;
+        this.specularExponent = 250;
         this.lweights = [];
         this.lweights = this.computeLightingFunction(this.lightPos);
         if (this._program != null) this._program.destroy();
@@ -1203,7 +1223,11 @@ MultiResRenderer.prototype = {
             topTex: this.topTex,
 
             theta: this.theta,
-            phi: this.phi
+            phi: this.phi,
+
+            specularBlend: this.specularBlend,
+            specularExponent: this.specularExponent
+
         };
         if (this.enumType[this.type] != 4) {
             for (var i = 0; i < this.ordlen; i++) {

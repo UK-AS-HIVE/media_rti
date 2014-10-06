@@ -46,6 +46,7 @@ function media_rti_theme($existing, $type, $theme, $path) {
  */
 function theme_media_rti_formatter_rti_viewer($element) {
   drupal_add_library('system', 'ui.button');
+  drupal_add_library('system', 'ui.slider');
 
   drupal_add_css(drupal_get_path('module', 'media_rti') . '/css/webrtiviewer.css');
   drupal_add_js(drupal_get_path('module', 'media_rti') . '/js/spidergl/spidergl_min.js');

@@ -75,6 +75,9 @@ uniform float gmin8;
 uniform float phi;
 uniform float theta;
 
+uniform float specularBlend;
+uniform float specularExponent;
+
 uniform float leftTex;
 uniform float rightTex;
 uniform float bottomTex;
@@ -144,7 +147,7 @@ void main(void)
 
 	vec3 N = vec3(nx, ny, nz);
 	vec3 H = 0.5*(vec3(lx,ly,lz)+N);
-	float spec = pow(dot(N, H), 150.0);
+	float spec = specularBlend * pow(dot(N, H), specularExponent);
 	color += spec;
 
 	gl_FragColor = vec4(color, 1.0);

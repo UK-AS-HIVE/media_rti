@@ -74,7 +74,17 @@
 	{
 		background-image: url(icons/help_hover.png) !important;
 	}
-	
+
+	.specularSliders
+	{
+		width: 150px;
+	}
+
+	.specularSliders > div
+	{
+		margin-bottom: 12px;
+	}
+
 	#viewContainer
 	{
 		text-align: center;
