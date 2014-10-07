@@ -1,11 +1,39 @@
 <?php
 
+function media_rti_drush_command() {
+  $items = array();
+  $items['unpack-rti-files'] = array(
+    'description' => "Runs through all RTI files and converts coefficient layers to images for WebGL viewer",
+    'bootstrap' => DRUSH_BOOTSTRAP_DRUSH,
+  );
+
+  return $items;
+}
+
+function drush_media_rti_unpack_rti_files() {
+  print("Unpacking RTI files\n");
+  $q = db_select('file_managed', 'f');
+  $q->fields('f', array('fid'));
+  $q->condition('f.status', FILE_STATUS_PERMANENT);
+  $q->condition('f.uri', 'public://%.rti', 'LIKE');
+  $fids = $q->execute()->fetchCol();
+
+  foreach ($fids as $delta => $fid) {
+    print("...rti file $fid ($delta of " . count($fids) . " - " . intval($delta*100.0/count($fids)) . "%)");
+    $start_time = microtime(TRUE);
+    media_rti_unpack_rti_file($fid);
+    $elapsed_time = microtime(TRUE) - $start_time;
+    print('(took ' . $elapsed_time . " seconds)");
+    print("               \r");
+  }
+}
+
 function media_rti_unpack_rti_file($fid) {
   $file = drupal_realpath(file_load($fid)->uri);
 
   // Make sure output path exists
-  if (!is_dir('/var/www/sites/default/files/rti/' . $fid)) {
-    mkdir('/var/www/sites/default/files/rti/' . $fid, 0775, true);
+  if (!is_dir(drupal_realpath('public://rti/' . $fid))) {
+    mkdir(drupal_realpath('public://rti/' . $fid), 0775, true);
   }
 
   // Open in text mode for reading the header info
@@ -144,7 +172,7 @@ function media_rti_unpack_rti_file($fid) {
 
 
   // Write info.xml
-  $infoFile = fopen('/var/www/sites/default/files/rti/' . $fid . '/info.xml', 'w');
+  $infoFile = fopen(drupal_realpath('public://rti/' . $fid . '/info.xml'), 'w');
   fwrite($infoFile, "<!DOCTYPE Doc>\n<MultiRes>\n");
   switch($info['RTI_type']) {
     case 3:
@@ -190,7 +218,7 @@ function media_rti_generate_tree(&$square_image, &$imagebuffer, &$info, &$id, $p
       $srcX, $srcY,
       258, 258,
       $w, $w);
-    imagejpeg($square_image, '/var/www/sites/default/files/rti/' . $info['fid'] . '/' . $myId . '_' . ($t+1) . '.jpg', 98);
+    imagejpeg($square_image, drupal_realpath('public://rti/' . $info['fid'] . '/' . $myId . '_' . ($t+1) . '.jpg'), 98);
   }
 
   $info['tree'][$myId-1] = array(
@@ -210,7 +238,4 @@ function media_rti_generate_tree(&$square_image, &$imagebuffer, &$info, &$id, $p
   return $myId;
 }
 
-if (function_exists(drush_print)) {
-  media_rti_unpack_rti_file(16686);
-}
 
