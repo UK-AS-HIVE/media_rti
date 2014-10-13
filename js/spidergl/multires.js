@@ -75,7 +75,8 @@ function createRtiViewer(e, t, n, r) {
     h.style.top = "0px";
     h.style.color = "#FFFFFF";
     h.style.backgroundColor = "rgba(0, 0, 0, 0.9)";
-    h.innerHTML = '<div style = "display:table; width: 100%; height: 100%; font-size: 18px; font-family: Verdana,sans-serif;"><div style ="display: table-cell; width: 100%; vertical-align: middle; text-align: left;"> <div style ="width: 90%; margin: auto;"><h3>WebRTIViewer<br/></h3><ul><li>Pan: LeftMouseButton + MouseMove.</li><li>Zoom in: MouseWhell or press the button <img src = "/sites/all/modules/media_rti/css/icons/zoomin.png" width = "30px" alt=""/></li><li>Zoom out: MouseWheel or press the button <img src = "/sites/all/modules/media_rti/css/icons/zoomout.png" width = "30px" alt=""/></li><li>To change the light direction: activate the light with the button <img src = "/sites/all/modules/media_rti/css/icons/light.png" width = "30px" alt=""/> and press LeftMouseButton + MouseMove or Ctrl + LeftMouseButton + MouseMove.</li><li>To reset the viewpoint: press R.</li></ul><a href="http://vcg.isti.cnr.it" target = "_black">Visual Computing Lab ISTI CNR Pisa</a></div></div></div>';
+    h.style.zIndex = 500;
+    h.innerHTML = '<div style = "display:table; width: 100%; height: 100%; font-size: 14px; font-family: Verdana,sans-serif;"><div style ="display: table-cell; width: 100%; vertical-align: middle; text-align: left;"> <div style ="width: 70%; margin: auto;"><h3>RTI Viewer<br/></h3><p>This viewer allows dynamically relighting objects through Reflectance Transformation Imaging.</p><ul><li>To change the lighting direction, toggle the light control on, then click and drag around the viewer.</li><li>Use the sliders to adjust the blend and falloff of specular highlighting to enhance visibility of certain artifacts.</li></ul></div></div></div>';
     h.style.display = "none";
     o.append(h);
     $("#" + e + "_div .zoomIn").button({
@@ -159,6 +160,7 @@ function createRtiViewer(e, t, n, r) {
     p.style.top = "0px";
     p.style.color = "#FFFFFF";
     p.style.backgroundColor = "rgba(0, 0, 0, 1.0)";
+    p.style.zIndex = 500;
     p.innerHTML = '<canvas id = "testCanvas" width= "800" height= "600" contenteditable="true"></canvas>';
     p.style.display = "none";
     o.append(p);
